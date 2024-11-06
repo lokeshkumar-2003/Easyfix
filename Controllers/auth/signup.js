@@ -1,9 +1,9 @@
-const User = require("../../Model/User.js");
+const User = require("../../Models/user.js");
 const validator = require("validator");
 const JsonToken = require("../../Util/jsonToken.js");
 const { hashPassword } = require("../../Util/auth.js");
 
-module.exports.Signup = async (req, res, next) => {
+const Signup = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
 
@@ -30,18 +30,15 @@ module.exports.Signup = async (req, res, next) => {
       });
     }
 
-    // Ensure that hashPassword is awaited if it's a promise
-    let hashedPass = await hashPassword(password); // <-- Await if async
+    let hashedPass = await hashPassword(password);
 
-    // Create user with correct field name for password
     const user = await User.create({
       username,
       email,
-      password: hashedPass, // <-- Use 'password' field instead of 'hashedPass'
+      password: hashedPass,
       otp: null,
     });
 
-    // Generate JWT token
     const token = await JsonToken(user._id);
 
     return res.status(201).json({
@@ -59,3 +56,5 @@ module.exports.Signup = async (req, res, next) => {
     });
   }
 };
+
+module.exports = Signup;

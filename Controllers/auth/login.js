@@ -1,19 +1,19 @@
-const User = require("../../Model/User.js");
+const User = require("../../Models/user.js");
 const validator = require("validator");
 const JsonToken = require("../../Util/jsonToken.js");
 const { hashCompare } = require("../../Util/auth.js");
 
-module.exports.Login = async (req, res, next) => {
+const Login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    console.log(email, password);
+
     if (!email || !password) {
       return res
         .status(404)
         .json({ success: false, message: "Please enter all the fields" });
     }
 
-    if (!validator.isEmail(email) && !validator.isStrongPassword(password)) {
+    if (!validator.isEmail(email)) {
       return res.status(400).json({
         success: false,
         message: "Enter strong password and valid email address",
@@ -30,11 +30,11 @@ module.exports.Login = async (req, res, next) => {
     if (!isUser) {
       return res.status(404).json({
         success: false,
-        message: "User dosen't exist",
+        message: "Incorrect email or not registered",
       });
     }
 
-    const auth = hashCompare(password, isUser.password);
+    const auth = await hashCompare(password, isUser.password);
 
     if (!auth) {
       return res.json({
@@ -48,7 +48,6 @@ module.exports.Login = async (req, res, next) => {
       return res.status(200).json({
         success: true,
         message: "User logged in successfully",
-
         jwt: token,
       });
     }
@@ -58,3 +57,5 @@ module.exports.Login = async (req, res, next) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+module.exports = Login;
