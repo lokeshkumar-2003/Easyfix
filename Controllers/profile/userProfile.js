@@ -20,6 +20,7 @@ module.exports.addProfile = async (req, res) => {
     }
 
     const userProfile = await profile.create({
+      userId,
       profilePicture,
       name,
       email,
@@ -31,7 +32,7 @@ module.exports.addProfile = async (req, res) => {
       return res.status(201).json({
         success: true,
         message: "User profile is created",
-        userProfile,
+        profile: { ...userProfile._doc },
       });
     } else {
       return res.status(400).json({
@@ -42,7 +43,7 @@ module.exports.addProfile = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       success: false,
-      message: "Server problem",
+      message: err.message,
     });
   }
 };
@@ -66,7 +67,7 @@ module.exports.updateProfile = async (req, res) => {
       });
     }
 
-    const userProfile = await profile.findOne({ userId });
+    const userProfile = await profile.findOne({ userId: userId });
 
     if (!userProfile) {
       return res.status(404).json({
@@ -104,9 +105,8 @@ module.exports.updateProfile = async (req, res) => {
 };
 
 module.exports.getProfile = async (req, res) => {
-  const { userId } = req.params;
-
   try {
+    const { userId } = req.params;
     if (!userId) {
       return res.status(404).json({
         success: false,
@@ -116,10 +116,10 @@ module.exports.getProfile = async (req, res) => {
 
     const userProfile = await profile.findOne({ userId });
 
-    if (updatedProfile) {
+    if (userProfile) {
       return res.status(200).json({
         status: true,
-        updatedProfile,
+        userProfile,
       });
     }
   } catch (err) {

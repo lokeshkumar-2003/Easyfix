@@ -23,7 +23,7 @@ const MobileSchema = new mongoose.Schema({
     unique: true,
   },
   purchaseYear: {
-    type: Number,
+    type: String,
     required: false,
   },
   warrantyStatus: {
