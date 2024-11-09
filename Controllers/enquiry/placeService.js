@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 
 module.exports.addEnquiry = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId } = req.params;
     if (!userId) {
       return res.status(404).json({
         success: false,
@@ -15,26 +15,24 @@ module.exports.addEnquiry = async (req, res) => {
     const userProfile = await Profile.findOne({ userId });
 
     const {
-      phonePicture,
-      phoneName,
-      model,
-      currentPhonePicture,
-      issueDescription,
-      urgencyLevel,
-      pickupDate,
-      comments,
-      userAddress,
-      serviceAddress,
-      preferredDate,
-      additionalComments,
+      userMobile: { phonePicture, phoneName, model },
+      enquiry: {
+        currentPhonePicture,
+        issueDescription,
+        urgencyLevel,
+        pickupDate,
+        comments,
+      },
+      orderedPlace: {
+        serviceCoords,
+        userCoords,
+        serviceStoreName,
+        userAddress,
+        serviceAddress,
+        preferredDate,
+        additionalComments,
+      },
     } = req.body;
-
-    if (!urgencyLevel && !pickupDate && !issueDescription) {
-      return res.status(404).json({
-        success: false,
-        message: "Urgencylevel, pickupdate, issue is reqired",
-      });
-    }
 
     if (!userProfile) {
       return res.status(404).json({
@@ -45,8 +43,8 @@ module.exports.addEnquiry = async (req, res) => {
 
     const userName = await userProfile?.name;
     const userPicture = await userProfile?.profilePicture;
-    const userEmail = await userProfile?.email;
-    const userPhoneNumber = await userProfile?.phone;
+    const email = await userProfile?.email;
+    const phNumber = await userProfile?.phone;
 
     const orderId = await uuidv4();
 
@@ -55,8 +53,8 @@ module.exports.addEnquiry = async (req, res) => {
       userDetails: {
         userName,
         userPicture,
-        userEmail,
-        userPhoneNumber,
+        email,
+        phNumber,
       },
       userMobile: {
         phoneName,
@@ -72,8 +70,15 @@ module.exports.addEnquiry = async (req, res) => {
       },
       orderedPlace: {
         orderId,
-        userAddress,
+        serviceStoreName,
         serviceAddress,
+        serviceCoords: {
+          ...serviceCoords,
+        },
+        userAddress,
+        userCoords: {
+          ...userCoords,
+        },
         preferredDate,
         additionalComments,
       },

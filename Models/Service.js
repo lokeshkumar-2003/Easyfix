@@ -65,20 +65,11 @@ const OrderServiceSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
-    userAddress: {
+    serviceStoreName: {
       type: String,
       required: true,
     },
-    userCoords: {
-      lat: {
-        type: String,
-        required: true,
-      },
-      lng: {
-        type: String,
-        required: true,
-      },
-    },
+
     serviceAddress: {
       type: String,
       required: true,
@@ -93,6 +84,22 @@ const OrderServiceSchema = new mongoose.Schema({
         required: true,
       },
     },
+
+    userAddress: {
+      type: String,
+      required: true,
+    },
+    userCoords: {
+      lat: {
+        type: String,
+        required: true,
+      },
+      lng: {
+        type: String,
+        required: true,
+      },
+    },
+
     preferredDate: {
       type: String,
       required: true,
