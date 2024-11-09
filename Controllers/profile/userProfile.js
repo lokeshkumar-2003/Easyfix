@@ -1,45 +1,47 @@
 const profile = require("../../Models/profile.js");
 
+const uploadImageByUrl = require("../../Util/imageUploader.js"); // Import Cloudinary function
+
 module.exports.addProfile = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { profilePicture, name, email, phone, address } = req.body;
+    const { name, email, phone, address } = req.body;
+    const profilePicture = req.file;
 
     if (!userId) {
       return res.status(404).json({
         success: false,
-        message: "User id is required for storing the profile",
+        message: "User ID is required for storing the profile",
       });
     }
 
-    if (!name && !email && !phone && !address) {
-      return res.status(404).json({
+    if (!name || !email || !phone) {
+      return res.status(400).json({
         success: false,
-        message: "All fields are required",
+        message: "Name, email, and phone are required fields",
       });
+    }
+
+    let imageUrl = "";
+    if (profilePicture) {
+      const uploadResult = await uploadImageByUrl(profilePicture.buffer);
+      imageUrl = uploadResult.secure_url;
     }
 
     const userProfile = await profile.create({
       userId,
-      profilePicture,
+      profilePicture: imageUrl,
       name,
       email,
       phone,
       address,
     });
 
-    if (userProfile) {
-      return res.status(201).json({
-        success: true,
-        message: "User profile is created",
-        profile: { ...userProfile._doc },
-      });
-    } else {
-      return res.status(400).json({
-        success: true,
-        message: "User profile can't create",
-      });
-    }
+    return res.status(201).json({
+      success: true,
+      message: "User profile created",
+      profile: { ...userProfile._doc },
+    });
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -51,8 +53,9 @@ module.exports.addProfile = async (req, res) => {
 module.exports.updateProfile = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { profilePicture, name, email, phone, address } = req.body;
-
+    const { name, email, phone, address } = req.body;
+    const profilePicture = req.file;
+    let imageUrl = "";
     if (!userId) {
       return res.status(404).json({
         success: false,
@@ -67,7 +70,7 @@ module.exports.updateProfile = async (req, res) => {
       });
     }
 
-    const userProfile = await profile.findOne({ userId: userId });
+    const userProfile = await profile.findOne({ userId });
 
     if (!userProfile) {
       return res.status(404).json({
@@ -75,12 +78,16 @@ module.exports.updateProfile = async (req, res) => {
         message: "user profile not found",
       });
     }
+    if (profilePicture) {
+      const uploadResult = await uploadImageByUrl(profilePicture.buffer);
+      imageUrl = uploadResult.secure_url;
+    }
 
-    userProfile.profilePicture = profilePicture;
-    userProfile.name = name;
-    userProfile.email = email;
-    userProfile.phone = phone;
-    userProfile.address = address;
+    if (imageUrl) userProfile.profilePicture = imageUrl;
+    if (name) userProfile.name = name;
+    if (email) userProfile.email = email;
+    if (phone) userProfile.phone = phone;
+    if (address) userProfile.address = address;
 
     const updatedProfile = await userProfile.save();
 
@@ -99,7 +106,7 @@ module.exports.updateProfile = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       success: false,
-      message: "Server problem",
+      message: err.message,
     });
   }
 };

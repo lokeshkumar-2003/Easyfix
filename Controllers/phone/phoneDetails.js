@@ -2,12 +2,15 @@ const mongoose = require("mongoose");
 const profile = require("../../Models/profile.js");
 const { v4: uuidv4 } = require("uuid");
 
+const uploadImageByUrl = require("../../Util/imageUploader.js"); // Import Cloudinary function
+
 module.exports.addPhoneProfile = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { make, model, imei, purchaseYear, warrantyStatus, phonePicture } =
-      req.body;
+    const { make, model, imei, purchaseYear, warrantyStatus } = req.body;
+    const phonePicture = req.file;
 
+    // Validate required fields
     if (!userId) {
       return res.status(400).json({
         success: false,
@@ -22,6 +25,7 @@ module.exports.addPhoneProfile = async (req, res) => {
       });
     }
 
+    // Find user profile by userId
     const userProfile = await profile.findOne({ userId });
 
     if (!userProfile) {
@@ -31,8 +35,17 @@ module.exports.addPhoneProfile = async (req, res) => {
       });
     }
 
+    // Generate unique mobileId
     const mobileId = uuidv4();
 
+    // Upload phone picture to Cloudinary if available
+    let imageUrl = "";
+    if (phonePicture) {
+      const uploadResult = await uploadImageByUrl(phonePicture.buffer);
+      imageUrl = uploadResult.secure_url;
+    }
+
+    // Add new phone details to userMobiles array
     userProfile.userMobiles.push({
       mobileId,
       make,
@@ -40,9 +53,10 @@ module.exports.addPhoneProfile = async (req, res) => {
       imei,
       purchaseYear,
       warrantyStatus,
-      phonePicture,
+      phonePicture: imageUrl,
     });
 
+    // Save updated user profile
     await userProfile.save();
 
     return res.status(201).json({
@@ -60,8 +74,9 @@ module.exports.addPhoneProfile = async (req, res) => {
 module.exports.updatePhoneProfile = async (req, res) => {
   try {
     const { userId, mobileId } = req.params;
-    const { make, model, imei, purchaseYear, warrantyStatus, phonePicture } =
-      req.body;
+    const { make, model, imei, purchaseYear, warrantyStatus } = req.body;
+
+    const { phonePicture } = req.file;
 
     if (!userId || !mobileId) {
       return res.status(400).json({
@@ -88,13 +103,18 @@ module.exports.updatePhoneProfile = async (req, res) => {
         message: "Mobile not found in user's profile",
       });
     }
+    let imageUrl = "";
+    if (phonePicture) {
+      const uploadResult = await uploadImageByUrl(phonePicture.buffer);
+      imageUrl = uploadResult.secure_url;
+    }
 
     if (make) mobileToUpdate.make = make;
     if (model) mobileToUpdate.model = model;
     if (imei) mobileToUpdate.imei = imei;
     if (purchaseYear) mobileToUpdate.purchaseYear = purchaseYear;
     if (warrantyStatus) mobileToUpdate.warrantyStatus = warrantyStatus;
-    if (phonePicture) mobileToUpdate.phonePicture = phonePicture;
+    if (phonePicture) mobileToUpdate.phonePicture = imageUrl;
 
     await userProfile.save();
 
