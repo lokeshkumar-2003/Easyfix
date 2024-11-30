@@ -52,7 +52,7 @@
 
   <h2>Reporting</h2>
   <h3>Login Page</h3>
-  <img src="https://raw.githubusercontent.com/lokeshkumar-2003/Easyfix/refs/heads/main/1730540756497.jpeg" height="400" width="200"/>
+  <img src="https://raw.githubusercontent.com/lokeshkumar-2003/Easyfix/refs/heads/main/1730540756497.jpeg" height="200px" width="400px"/>
 
   <h2>License</h2>
   <p>This project is licensed under the <strong>MIT License</strong>.</p>
