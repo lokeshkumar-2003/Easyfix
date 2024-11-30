@@ -50,9 +50,13 @@
     <li>Downloadable PDF format for offline use.</li>
   </ul>
 
-  <h2>Reporting</h2>
+  <h2>Project</h2>
   <h3>Login Page</h3>
   <img src="https://raw.githubusercontent.com/lokeshkumar-2003/Easyfix/refs/heads/main/1730540756497.jpeg" height="200px" width="400px"/>
+  <h3>Dashboard Page</h3>
+  <img src="https://raw.githubusercontent.com/lokeshkumar-2003/Easyfix/refs/heads/main/1730540756497.jpeg" height="200px" width="400px"/>
+   <h3>Report Documents</h3>
+  <img src="file:///C:/Users/kumar/OneDrive/Pictures/Screenshots/Screenshot%20(123).png" height="200px" width="400px"/>
 
   <h2>License</h2>
   <p>This project is licensed under the <strong>MIT License</strong>.</p>
